@@ -10,7 +10,7 @@ if (!scope) {
   );
   return;
 }
-if (!scope[0] !== "@") {
+if (scope[0] !== "@") {
   console.error(`Scope should start with "@"`);
   return;
 }
