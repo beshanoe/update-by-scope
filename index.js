@@ -1,3 +1,6 @@
+const Path = require("path");
+const ChildProcess = require("child_process");
+
 const [
   scope,
   npmClient = "yarn",
@@ -15,7 +18,10 @@ if (scope[0] !== "@") {
   return;
 }
 
-const { dependencies = {}, devDependencies = {} } = require("./package.json");
+const { dependencies = {}, devDependencies = {} } = require(Path.join(
+  process.cwd(),
+  "./package.json"
+));
 
 const packageNames = Array.from(
   new Set(
@@ -40,10 +46,6 @@ console.log(
   )}"`
 );
 
-require("child_process").spawnSync(
-  "yarn",
-  [clientCommand, ...packageNamesWithVersion],
-  {
-    stdio: "inherit"
-  }
-);
+ChildProcess.spawnSync("yarn", [clientCommand, ...packageNamesWithVersion], {
+  stdio: "inherit"
+});
