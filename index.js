@@ -46,6 +46,6 @@ console.log(
   )}"`
 );
 
-ChildProcess.spawnSync("yarn", [clientCommand, ...packageNamesWithVersion], {
+ChildProcess.spawnSync(npmClient, [clientCommand, ...packageNamesWithVersion], {
   stdio: "inherit"
 });
