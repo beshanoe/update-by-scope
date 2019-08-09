@@ -15,7 +15,7 @@ args
     "NPM client command to execute",
     defaultNpmCommand
   )
-  .option(["t", "tag"], "NPM tag", 'latest')
+  .option(["t", "tag"], "NPM tag", "latest")
   .option("v", "Show version")
   .option("h", "Show help");
 
@@ -29,7 +29,8 @@ if (flags.h) {
   args.showHelp();
 }
 if (flags.v) {
-  args.showVersion();
+  console.log(require('../package.json').version)
+  process.exit(0)
 }
 
 const [
