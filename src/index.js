@@ -55,20 +55,27 @@ const { dependencies = {}, devDependencies = {} } = JSON.parse(
   fs.readFileSync(Path.join(process.cwd(), "./package.json"))
 );
 
-const packageNames = Array.from(
-  new Set(
-    [...Object.keys(dependencies), ...Object.keys(devDependencies)].filter(_ =>
-      _.startsWith(scope)
-    )
-  )
-).sort();
 
-if (!packageNames.length) {
+const packageEntries = [...Object.entries(dependencies), ...Object.entries(devDependencies)]
+  .map(([name, spec]) => ({name, spec}))
+  .filter(({name}) => name.startsWith(scope));
+
+if (!packageEntries.length) {
   console.log(`Found 0 packages with scope "${scope}"`);
   return;
 }
 
-const packageNamesWithVersion = packageNames.map(_ => `${_}@${flags.tag}`);
+const packageNames = packageEntries.map(({name}) => name);
+
+const gitSpecPrefixes = ['git://', 'git+ssh://', 'git+http://', 'git+https://', 'git+file://'];
+const packageNamesWithVersion = packageEntries.map(({name, spec}) => {
+  if (gitSpecPrefixes.filter(prefix => spec.startsWith(prefix)).length) {
+    return name;
+  } else {
+    return `${name}@${flags.tag}`;
+  }
+})
+  .sort();
 
 console.log(`Found ${packageNames.length} with scope "${scope}":`);
 console.log(packageNames);
