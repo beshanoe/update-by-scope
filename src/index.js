@@ -3,6 +3,7 @@ const fs = require("fs");
 const ChildProcess = require("child_process");
 const args = require("args");
 const hasYarn = require("has-yarn");
+const os = require("os");
 
 const [defaultNpmClient, defaultNpmCommand] = hasYarn()
   ? ["yarn", "upgrade"]
@@ -79,5 +80,6 @@ console.log(
 );
 
 ChildProcess.spawnSync(npmClient, [clientCommand, ...packageNamesWithVersion], {
-  stdio: "inherit"
+  stdio: "inherit",
+  shell: os.platform() == 'win32'
 });
