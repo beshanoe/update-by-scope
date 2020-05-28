@@ -1,6 +1,6 @@
 {
   "name": "update-by-scope",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "main": "index.js",
   "bin": "./cli/bin.js",
   "repository": "https://github.com/beshanoe/update-by-scope.git",
