@@ -47,11 +47,6 @@ if (!scope) {
   args.showHelp();
 }
 
-if (scope[0] !== "@") {
-  console.error(`Scope should start with "@"`);
-  return;
-}
-
 const { dependencies = {}, devDependencies = {} } = JSON.parse(
   fs.readFileSync(Path.join(process.cwd(), "./package.json"))
 );
