@@ -40,8 +40,8 @@ const [
   legacyClientCommand = defaultNpmCommand
 ] = args.sub;
 
-const npmClient = legacyNpmClient || flags.npmClient;
-const clientCommand = legacyClientCommand || flags.npmClientCommand;
+const npmClient = flags.npmClient || legacyNpmClient;
+const clientCommand = flags.npmClientCommand || legacyClientCommand;
 
 if (!scope) {
   args.showHelp();
