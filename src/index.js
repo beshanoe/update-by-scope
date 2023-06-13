@@ -4,6 +4,7 @@ const ChildProcess = require("child_process");
 const args = require("args");
 const hasYarn = require("has-yarn");
 const os = require("os");
+const semver = require("semver");
 
 const [defaultNpmClient, defaultNpmCommand] = hasYarn()
   ? ["yarn", "upgrade"]
@@ -16,9 +17,9 @@ args
     "NPM client command to execute",
     defaultNpmCommand
   )
-  .option(["t", "tag"], "NPM tag", "latest")
+  .option(["t", "tag"], "NPM tag. Will default to 'latest' or a package's specified prerelease tag unless explicitly set.")
   .option("v", "Show version")
-  .option("h", "Show help");
+  .option(["h", "help"], "Show help");
 
 const flags = args.parse(process.argv, {
   value: `<scope> [npmClient=${defaultNpmClient}] [npmClientCommand=${defaultNpmCommand}]`,
@@ -51,20 +52,41 @@ const { dependencies = {}, devDependencies = {} } = JSON.parse(
   fs.readFileSync(Path.join(process.cwd(), "./package.json"))
 );
 
-const packageNames = Array.from(
+const packages = Array.from(
   new Set(
-    [...Object.keys(dependencies), ...Object.keys(devDependencies)].filter(_ =>
+    [...Object.entries(dependencies), ...Object.entries(devDependencies)].filter(([_]) =>
       _.startsWith(scope)
     )
   )
 ).sort();
 
-if (!packageNames.length) {
+if (!packages.length) {
   console.log(`Found 0 packages with scope "${scope}"`);
   return;
 }
 
-const packageNamesWithVersion = packageNames.map(_ => `${_}@${flags.tag}`);
+const packageNamesWithVersion = packages.map(([package, version]) => {
+  let tag = flags.tag;
+
+  if (!tag) {
+    // Get the minimum version for the package using semver (e.g. ^1.0.0 -> 1.0.0)
+    const minVersionForPackageSemver = semver.minVersion(version);
+    
+    // If a prerelease tag was found, use it as the tag
+    if (minVersionForPackageSemver && typeof minVersionForPackageSemver.prerelease[0] === 'string') {
+      tag = minVersionForPackageSemver.prerelease[0];
+    }
+
+    // If no prerelease tag was found, default to latest
+    if (!tag) {
+      tag = 'latest';
+    }
+  }
+
+  return `${package}@${tag}`;
+});
+
+const packageNames = packages.map(([package]) => package);
 
 console.log(`Found ${packageNames.length} with scope "${scope}":`);
 console.log(packageNames);
